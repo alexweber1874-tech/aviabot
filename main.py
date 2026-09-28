@@ -56,7 +56,7 @@ def update_flight_price(route, date, flight_number, new_price):
     conn.commit()
     conn.close()
 
-# --- ПОИСК БИЛЕТОВ ---
+# --- ПОИСК БИЛЕТОВ (РЕАЛЬНЫЙ API) ---
 async def search_flights():
     logging.info("Запуск поиска билетов через Aviasales API...")
     found_new, price_dropped = [], []
@@ -97,11 +97,11 @@ async def send_notifications(found_new, price_dropped):
         logging.info("Новых предложений не найдено")
         return
     
-    message = " Уведомление о билетах\n\n"
+    message = "🔔 Уведомление о билетах\n\n"
     if found_new:
-        message += " Новые маршруты:\n" + "".join([f"✈️ {f['airline']} ({f['flight_number']})\n📍 {f['route']} | 📅 {f['date']}\n💰 {f['price']} руб | 🧳 {f['baggage']}\n\n" for f in found_new])
+        message += "🆕 Новые маршруты:\n" + "".join([f"✈️ {f['airline']} ({f['flight_number']})\n📍 {f['route']} | 📅 {f['date']}\n💰 {f['price']} руб | 🧳 {f['baggage']}\n\n" for f in found_new])
     if price_dropped:
-        message += "📉 Цена снизилась:\n" + "".join([f"️ {f['airline']} ({f['flight_number']})\n📍 {f['route']} | 📅 {f['date']}\n💰 {f['price']} руб | 🧳 {f['baggage']}\n\n" for f in price_dropped])
+        message += "📉 Цена снизилась:\n" + "".join([f"✈️ {f['airline']} ({f['flight_number']})\n📍 {f['route']} | 📅 {f['date']}\n💰 {f['price']} руб | 🧳 {f['baggage']}\n\n" for f in price_dropped])
     
     async with aiohttp.ClientSession() as session:
         await session.post(f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage", json={"chat_id": CHAT_ID, "text": message})
